@@ -1,86 +1,90 @@
 package part2;
 
+import java.util.Arrays;
 import java.util.List;
 
+/**
+ * This class implements a Naive Bayes Classifier (Machine Learning)
+ * @author James Sutton
+ *
+ */
 public class Classifier {
 	
 	private double spamProb = 0;
 	private double nonSpamProb = 0;
-	private double s = 0; 
-	private double ns = 0;
+	private double s = 0; //counts number of spam training instances
+	private double ns = 0; //counts number of nonspam training instances
 	
-	private double[][] featureCount = new double[2][24]; //row 0 = nonspam class, row 1 = spam class. Col 0-11 = feature 1- 12 false, Col 12-23 = feature 1-12 true (A little confusing I know sorry)
+	private double[][] featureCount = new double[2][24]; //row 0 = nonspam class, row 1 = spam class. Col 0-11 = feature 1-12 false, Col 12-23 = feature 12-1 true
 
+	/**
+	 * Implements a Naive Bayes Classifier for the instances
+	 * @param data - List of Instances (nonspam or spam), contain 12 features which can either be true or false
+	 */
 	public Classifier(List<Instance> data) {
 		
 		//init counts to 1
-		for (int row = 0; row < 2; row ++){
-		    for (int col = 0; col < 24; col++){
-		        featureCount[row][col] = 1;
-		    }
+		for(double[] row: featureCount) {
+			Arrays.fill(row, 1);
 		}
 		
 		int f = 0;
 		for(Instance i : data){
-			if(i.getClassification() == 0){
-				ns++;
-				int[] feat = i.getFeatures();
-				for(int j = 0; j < 12; j++){
-					f = feat[j];
-					
-					if(f == 0){
-						
-						featureCount[0][j]++;
-					}
-					else{
-						featureCount[0][23-j]++;
-					}
-				}
-				
-			}
-			else if(i.getClassification() == 1){
-				s++;
-				int[] feat = i.getFeatures();
-				for(int j = 0; j < 12; j++){
-					f = feat[j];
-					if(f == 0){
-						featureCount[1][j]++;
-					}
-					else{
-						featureCount[1][23-j]++;
-					}
-				}
-				
-			}
+			countFeatures(i, i.getClassification());
 		}
 		
 		this.spamProb = (s+1)/(s+ns+2);
 		this.nonSpamProb = (ns+1)/(s+ns+2);
-		
-		
+	}
+
+	/**
+	 * feature counter for training instances
+	 * @param i - training instance
+	 * @param c - classification (nonspam or spam)
+	 */
+	private void countFeatures(Instance i, int c) {
+		if(c == 0) {
+			ns++;
+		}
+		else {
+			s++;
+		}
+		int f;
+		int[] feat = i.getFeatures();
+		for(int j = 0; j < 12; j++){
+			f = feat[j]; //feature value (false or true)
+			//false
+			if(f == 0){
+				featureCount[c][j]++;
+			}
+			//true
+			else{
+				featureCount[c][23-j]++;
+			}
+		}
 	}
 	
 	/**
 	 * classifies test instance
-	 * @param i
+	 * @param i - test instance
 	 * @return
 	 */
 	public int classify(Instance i){
 		
 		int[] features = i.getFeatures();
 		double spamScore = spamProb;
-		int b = 0;
+		int f = 0;
 		for(int j = 0; j < 12; j++){
-			b = features[j];
-			double featProb = getFeatureProb(1,j,b);
+			f = features[j];
+			double featProb = getFeatureProb(1,j,f);
 			spamScore *= featProb;
 		}
 		
 		double nonSpamScore = nonSpamProb;
-		b = 0;
-		for(int k = 0; k < 12; k++){
-			b = features[k];
-			double featProb = getFeatureProb(0,k,b);
+		f = 0;
+		for(int j = 0; j < 12; j++){
+			f = features[j];
+			double featProb = getFeatureProb(0,j,f);
 			nonSpamScore *= featProb;
 		}
 		
@@ -101,11 +105,11 @@ public class Classifier {
 	 * calculates feature probability
 	 * @param spam - class
 	 * @param feature - feature number staring from 0 up to 11
-	 * @param bin - binary value of feature
+	 * @param f - feature value (0=false, 1=true)
 	 * @return
 	 */
-	public double getFeatureProb(int spam, int feature, int bin){
-		if(bin == 0){
+	public double getFeatureProb(int spam, int feature, int f){
+		if(f == 0){
 			if(spam == 0){
 				return featureCount[spam][feature] / (ns+2);
 			}

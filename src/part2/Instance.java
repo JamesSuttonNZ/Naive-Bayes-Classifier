@@ -1,5 +1,10 @@
 package part2;
 
+/**
+ * An instance of an email which is either spam or nonspam, with 12 features which are either true or false
+ * @author James Sutton
+ *
+ */
 public class Instance {
 
 	private int[] features = new int[12];

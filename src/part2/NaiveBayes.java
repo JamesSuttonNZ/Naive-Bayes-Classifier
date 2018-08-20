@@ -6,6 +6,11 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Scanner;
 
+/**
+ * Naive Bayes Classifier Comp307 A3 part2
+ * @author James Sutton
+ *
+ */
 public class NaiveBayes {
 	
 	public static List<Instance> training;
@@ -19,8 +24,8 @@ public class NaiveBayes {
 	 */
 	public static void main(String[] args){
 
-		training = readTraining(args[0]);
-		test = readTest(args[1]);
+		training = readTraining("spamLabelled.dat");
+		test = readTest("spamUnlabelled.dat");
 		
 		classifier = new Classifier(training);
 		
@@ -40,7 +45,7 @@ public class NaiveBayes {
 	}
 
 	/**
-	 * read in data from files
+	 * read in training data from files
 	 * @param args
 	 */
 	private static ArrayList<Instance> readTraining(String filename) {
@@ -67,7 +72,7 @@ public class NaiveBayes {
 	}
 	
 	/**
-	 * read in data from files
+	 * read in test data from files
 	 * @param args
 	 */
 	private static ArrayList<Instance> readTest(String filename) {
